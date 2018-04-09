@@ -1,0 +1,282 @@
+$(document).ready(function () {
+
+    $("#idCreateNewTicket").css("cursor", "pointer");
+    $("#idCreateNewTicket").one("click", function () {
+
+        var order_nr = $("#idOrderNr").val();
+        var item_id = $("#idItemId").length > 0 ? $("#idItemId").val() : '';
+        $("#idCreateNewTicket").html("<div><i>Creating new ticket. Please wait... </i></div>");
+
+        $.ajax({
+            method: "GET",
+            url: "/customers/create_new_ticket/",
+            data: {order_nr: order_nr, item_id: item_id}
+        }).done(function (data) {
+            //window.open(data.url,"popupWindow", "width=600,height=600,scrollbars=yes");
+            $("#idZenTickets").html(data);
+            //eval($("#runscript").html());
+        });
+    });
+
+    $(".idCreateNewItemTicket").css("cursor", "pointer");
+    $(".idCreateNewItemTicket").one("click", function () {
+
+        $("#idCreateNewTicket").html("<div><i>Creating new ticket. Please wait... </i></div>");
+
+        var item_id = $(this).attr("item");
+        var order_nr = $("#idOrderNr").val();
+
+        $.ajax({
+            method: "GET",
+            url: "/customers/create_new_ticket/",
+            data: {item_id: item_id, order_nr: order_nr}
+        })
+            .done(function (data) {
+                //window.open(data.url,"popupWindow", "width=600,height=600,scrollbars=yes");
+                $("#idZenTickets").html(data);
+                //eval($("#runscript").html());
+            });
+
+    });
+
+    $(".idOrderItemDeliveryStatus").css("cursor", "pointer");
+    $(".idOrderItemDeliveryStatus").click(function () {
+
+        var item_id = $(this).attr("item");
+
+        $.ajax({
+            method: "GET",
+            url: "/customers/item_status_details/",
+            data: {item_id: item_id}
+        })
+            .done(function (data) {
+                bootbox.alert({
+                    title: 'Item Delivery Status - ' + item_id,
+                    message: $.parseHTML(data),
+                    size: 'large',
+                    backdrop: true,
+                    className: 'bootbox',
+                });
+            });
+    });
+
+    $(".idShowItemComments").css("cursor", "pointer");
+    $(".idShowItemComments").click(function () {
+
+        var item_id = $(this).attr("item");
+
+        $.ajax({
+            method: "GET",
+            url: "/customers/item_comments/",
+            datatype: "html",
+            data: {item_id: item_id}
+        })
+            .done(function (data) {
+                bootbox.alert({
+                    title: 'Item Comments - ' + item_id,
+                    message: $.parseHTML(data),
+                    size: 'large',
+                    backdrop: true,
+                    className: 'bootbox',
+                });
+            });
+    });
+
+
+
+    var country = $('#idCountry').val();
+    var customer_id = $('#idCustomerId').val();
+
+    if(customer_id) {
+        var alipay_userid = $('#idAlipayUserID').val();
+        $.ajax({
+            type: 'GET',
+            url: '/api/customer/v1/ordersummary?country=' + country + '&customer_id=' + customer_id,
+            success: function (ordersummary) {
+                if (ordersummary.total_orders != 0) {
+                    $('#idTotalValue').text((ordersummary.total_value).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+                    $('#idTotalSuccessful').text(ordersummary.total_successful);
+                    $('#idTotalReturn').text(ordersummary.total_returned);
+                    $('#idTotalCancel').text(ordersummary.total_cancelled);
+                    $('#idTotalInvalid').text(ordersummary.total_invalid);
+                }
+            },
+            error: function(){
+                strErrorMessage = '<br/> Failed to load order summary. Please try again.';
+                html = $.parseHTML(strErrorMessage);
+                $('.alert-info').append(html);
+            }
+        });
+
+        var customer_email = encodeURIComponent($('#idCustomerProfileStatus').attr("item"));
+
+        $.ajax({
+            type: 'GET',
+            url: '/api/customer/v1/loyaltyinformation?country=' + country + '&customer_id=' + customer_id + '&email=' + customer_email,
+            success: function (loyaltyinfo) {
+                if (jQuery.isEmptyObject(loyaltyinfo) == false) {
+                    if(loyaltyinfo.status == 'ACTIVATED'){
+                        $('#idMembershipType').text(loyaltyinfo.membership_type);
+                        $('#idMembershipID').text(loyaltyinfo.user_id);
+                    }else{
+                        $('#idMembershipType').text(loyaltyinfo.status);
+                        $('#idMembershipID').text(loyaltyinfo.user_id);
+                    }
+                    $('#idRenewalDate').text(loyaltyinfo.renewal_date);
+                    $('#idSource').text(loyaltyinfo.source);
+                    $('#idLiveUpMember').html('<b>[LiveUp Member] - ' + loyaltyinfo.status + '</b>');
+                    if(loyaltyinfo.total_rebates_earned) {
+                        $('#idLoyaltyEarned').append(' (Total Earned: ' + loyaltyinfo.total_rebates_earned.toString() + ')');
+                    }else{
+                        $('#idLoyaltyEarned').append(' (Total Earned: 0)');
+
+                    }
+
+                } else {
+                    $('#idMembershipType').text('NA');
+                    $('#idRenewalDate').text('NA');
+                    $('#idSource').text('NA');
+
+                }
+            }
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: '/api/customer/v1/storecredit?country=' + country + '&customer_id=' + customer_id,
+            success: function (storecredit) {
+                if (jQuery.isEmptyObject(storecredit) == false) {
+                    $('#idStoreCredit').text(storecredit.available);
+
+                } else {
+                    $('#idStoreCredit').text('Not Available');
+
+                }
+            }
+        });
+        if(alipay_userid && alipay_userid != 0){
+            $.ajax({
+                type: 'GET',
+                url: '/api/customer/v1/alipaybalance?country=' + country + '&alipay_id=' + alipay_userid,
+                success: function (alipay_wallet) {
+                    if (jQuery.isEmptyObject(alipay_wallet) == false) {
+
+                        strAlipay = 'Total: ' + parseFloat(parseInt(alipay_wallet.balanceInfo.totalAmount.value)/100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
+                        strAlipay += '<br>Available: ' + parseFloat(parseInt(alipay_wallet.balanceInfo.availableAmount.value)/100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
+                        strAlipay += '<br>Frozen: ' + parseFloat(parseInt(alipay_wallet.balanceInfo.frozenAmount.value)/100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
+
+                        $('#idAlipayBalance').append(strAlipay);
+                        strAlipay = 'Total: ' + parseFloat(parseInt(alipay_wallet.couponInfo.totalAmountInfo.totalAmount.value)/100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
+                        strAlipay += ' <br>Available: ' + parseFloat(parseInt(alipay_wallet.couponInfo.totalAmountInfo.availableAmount.value)/100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
+                        strAlipay += ' <br>Frozen: ' + parseFloat(parseInt(alipay_wallet.couponInfo.totalAmountInfo.frozenAmount.value)/100).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
+
+                        $('#idAlipayCouponBalance').append(strAlipay);
+                        $('#idAlipayHistoryLink').html('<a id="idAlipayHistory" href="#"><span id="idAlipayID" item="' + alipay_wallet.alipay_id  + ',' + alipay_wallet.userStatusInfo.userStatus  + '"></span>View Transaction History</a>')
+
+                    } else {
+                        $('#idAlipayBalance').append('Not Available');
+                        $('#idAlipayCouponBalance').append('Not Available');
+
+                    }
+                },
+                error:function(){
+                    $('#idAlipayBalance').append('Not Available');
+                    $('#idAlipayCouponBalance').append('Not Available');
+
+                }
+            });
+        }else{
+            $('#idAlipayBalance').append('Not Available');
+            $('#idAlipayCouponBalance').append('Not Available');
+        }
+    }
+
+    if ($("#asklaz-customer-dropdown").length > 0) {
+        var customer_id = $("#idCustomerId").val();
+        $.get('/asklaz/dropdown/asklaz.customer.root/?customer_id=' + customer_id)
+            .done(function(data) {
+                $("#asklaz-customer-dropdown").html(data);
+            });
+    }
+
+    if ($("#asklaz-order-dropdown").length > 0) {
+        var order_nr = $("#idOrderNr").val();
+        $.get('/asklaz/dropdown/asklaz.order.root/?order_nr=' + order_nr)
+            .done(function(data) {
+                $("#asklaz-order-dropdown").html(data);
+            });
+    }
+});
+
+
+$(document).on('click', '#idAlipayHistory', function () {
+    var alipay = $('#idAlipayID').attr("item");
+    alipay_id = alipay.split(",")[0];
+    user_status = alipay.split(",")[1];
+     $.ajax({
+            method: "GET",
+            url: "/customers/alipay_transaction_history/"+alipay_id+"/"+user_status,
+            data: ""
+    })
+    .done(function (data) {
+        bootbox.alert({
+            title: 'Alipay Transaction History - ' + alipay_id,
+            message: $.parseHTML(data),
+            size: 'large',
+            backdrop: true,
+            className: 'bootbox',
+
+        }).addClass('bootboxHeight');
+    });
+});
+
+
+$(document).on('click', '#idFreezeAccount', function (e) {
+    var reason = prompt("Please enter reason for freezing account", "");
+
+    if (reason && reason.length < 256) {
+        $('#idFreezeAccount').attr('disabled', 'disabled').html("Freezing...");
+        $.ajax({
+            method: "POST",
+            url: "/customers/alipay_freeze_user/" + alipay_id + "/dsfsd",
+            data: {'reason': reason},
+            success: function (freezestatus) {
+                alert('The wallet has been freezed successfully');
+                window.location.reload();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log(xhr.responseText);
+            }
+        });
+        e.preventDefault();
+    }else if(reason.length >= 256){
+        alert('Reason is too long.')
+    }
+    else{
+        alert("Please key in reason")
+    }
+
+})
+
+
+$(document).on('click', '#idUnfreezeAccount', function (e) {
+    $('#idUnfreezeAccount').attr('disabled', 'disabled').html("Unfreezing...");
+    $.ajax({
+        method: "POST",
+        url: "/customers/alipay_unfreeze_user/" + alipay_id + "/dsfsd",
+        data: "",
+        success: function (freezestatus) {
+            if(freezestatus.indexOf('Error') >  -1){
+                alert(freezestatus);
+            } else {
+                alert('The wallet has been unfreezed successfully');
+            }
+            window.location.reload();
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            console.log(xhr.responseText);
+        }
+    });
+    e.preventDefault();
+})
+

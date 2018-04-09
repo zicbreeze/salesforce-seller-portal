@@ -15,16 +15,121 @@
                 padding-top: 50px;
             }
         </style>
+		
+		
+		 <!-- Essential CSS -->
+    <link rel="stylesheet" href="@routes.Assets.versioned("/static/css/bootstrap.min.css")" type="text/css">
+    <link rel="stylesheet" href="@routes.Assets.versioned("/static/css/morris-0-5-1.css")" type="text/css">
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="@routes.Assets.versioned("/static/css/font-awesome.min.css")" type="text/css">
+    <link rel="stylesheet" href="@routes.Assets.versioned("/static/css/gfont.css")" type="text/css">
+
+    <!-- Application CSS: Place at last. -->
+    <link rel="stylesheet" href="@routes.Assets.versioned("/static/css/style.css")" type="text/css">
+
+    <!-- Essential Libraries: Order is important. 
+    <script type="text/javascript" async="" src="/static/css/linkid.js.download"></script><script async="" src="/static/css/analytics.js.download"></script> -->
+	<script type="text/javascript" src="@routes.Assets.versioned("/static/css/jquery-1.12.4.min.js.download")"></script>
+    <script type="text/javascript" src="@routes.Assets.versioned("/static/css/moment-2-17-1.min.js.download")"></script>
+    <script type="text/javascript" src="@routes.Assets.versioned("/static/css/bootstrap.min.js.download")"></script>
+    <script type="text/javascript" src="@routes.Assets.versioned("/static/css/bootbox-4-4-0.min.js.download")"></script>
+
+    <!-- Charting Libraries: Order is important-->
+    <script type="text/javascript" src="@routes.Assets.versioned("/static/css/raphael-2-1-0.min.js.download")"></script>
+    <script type="text/javascript" src="@routes.Assets.versioned("/static/css/morris-0-5-1.min.js.download")"></script>
+
+    <!-- Application JS: Place after other scripts. -->
+    <script type="text/javascript" src="@routes.Assets.versioned("/static/css/customers.js.download")"></script>
+
+
+    <!-- Extra CSS -->
+    
+
+    <!-- Extra JS -->
+		
+		
     </head>
     <body>
 
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Quick Force</a>
+
+		
+		<nav id="idMainNavbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#ov-nav-bar-collapse" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">
+                <img class="pull-left" alt="C360 Logo" src="@routes.Assets.versioned("/static/css/s360.png")">
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="ov-nav-bar-collapse">
+            
+            <form action="/search/" role="form" method="post" class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="9qFjxl3knxbEkSAqgc8jNAqiuiChFeOIwMVcgYIRPEtOpV4OJkFe02jmeoGz7u71">
+                    <input type="email" name="search_email" class="form-control" id="search_email" placeholder="Email address" data-error="Email address is invalid">
+                    <label style="color:white;"> OR </label>
+                    <input type="text" name="search_order" class="form-control" id="search_order" placeholder="Order number">
+                    <label style="color:white;"> OR </label>
+                    <input type="text" name="search_phone" class="form-control" id="search_phone" placeholder="Phone Number">
                 </div>
-            </div>
-        </nav>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-bluelagoon navbar-btn">Search</button>
+                    <button type="button" class="btn btn-bluelagoon navbar-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="/customers/adv-search/">Advanced Search</a></li>
+                    </ul>
+                </div>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My country <span class="caret"></span></a>
+                    <ul class="dropdown-menu" id="admin-country-dropdown-menu">
+                        
+                        <li><a href="/change-country/ID">Indonesia </a></li>
+                        
+                        <li><a href="/change-country/MY">Malaysia </a></li>
+                        
+                        <li><a href="/change-country/TH">Thailand <span class="glyphicon glyphicon-ok"></span></a></li>
+                        
+                        <li><a href="/change-country/PH">Philippines </a></li>
+                        
+                        <li><a href="/change-country/SG">Singapore </a></li>
+                        
+                        <li><a href="/change-country/VN">Vietnam </a></li>
+                        
+                    </ul>
+                </li>
+                
+                <li class="dropdown">
+                    <a id="menu_button" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <b>Menu</b> <span class="glyphicon glyphicon-menu-hamburger"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/customers/">Home</a></li>
+                        
+                        
+                        
+                        
+                        <li><a href="/customers/account/">Change Password &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
+                        <li><a href="/logout/">Log Out</a></li>
+                    </ul>
+                </li>
+                <li><p class="navbar-text">Piyawat !</p></li>
+            </ul>
+            
+        </div>
+    </div>
+</nav>
 
         <div class="container">
             @content
